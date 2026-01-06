@@ -1,23 +1,23 @@
 import pygame
 from config import RAY_COLOR, MAX_BOUNCES, EPS
+from core.ray import Ray
 
 def trace(ray, scene, screen):
-    pygame.draw.circle(
-        screen,
-        RAY_COLOR,
-        ray.pos.tuple(),
-        4
-    )
+
+
+    pos = ray.pos         
+    direction = ray.dir
 
     for _ in range(MAX_BOUNCES):
-        obj, hit = scene.nearest_hit(ray)
+        temp_ray = Ray(pos, direction)
+        obj, hit = scene.nearest_hit(temp_ray)
 
         if not obj:
-            end = ray.pos + ray.dir * 2000
+            end = pos + direction * 2000
             pygame.draw.line(
                 screen,
                 RAY_COLOR,
-                ray.pos.tuple(),
+                pos.tuple(),
                 end.tuple(),
                 1
             )
@@ -26,10 +26,16 @@ def trace(ray, scene, screen):
         pygame.draw.line(
             screen,
             RAY_COLOR,
-            ray.pos.tuple(),
+            pos.tuple(),
             hit.tuple(),
             1
         )
 
-        obj.interact(ray, hit)
-        ray.pos = ray.pos + ray.dir * EPS
+        # interact updates direction only
+        direction = obj.interact(direction,hit)
+
+        pos = hit + direction * EPS
+
+def trace_rays(rays, scene, screen):
+    for ray in rays:
+        trace(ray, scene, screen)

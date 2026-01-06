@@ -1,3 +1,5 @@
+import math
+
 def ray_to_theta(ray_dir, axis, normal):
     """
     Project 2D ray direction into paraxial angle
@@ -12,3 +14,7 @@ def theta_to_dir(theta, axis, normal):
     """
     d = axis + normal * theta
     return d.normalize()
+
+
+def deg_to_rad(self, deg):
+    return deg * math.pi / 180.0

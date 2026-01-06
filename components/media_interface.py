@@ -15,16 +15,17 @@ class MediaInterface(OpticalElement):
         from simulation.intersection import ray_segment
         return ray_segment(ray, self.p1, self.p2)
 
-    def interact(self, ray, hit):
+    def interact(self, direction, hit):
         axis = (self.p2 - self.p1).normalize()
         normal = axis.perp()
 
-        theta = ray_to_theta(ray.dir, axis, normal)
+        theta = ray_to_theta(direction, axis, normal)
+
         M = interface(self.n1, self.n2)
         _, theta2 = (M @ [[0], [theta]]).flatten()
 
-        ray.pos = hit
-        ray.dir = theta_to_dir(theta2, axis, normal)
+        return theta_to_dir(theta2, axis, normal)
+
 
     def contains_point(self, pos):
         return point_segment_distance(pos, self.p1, self.p2) < 8

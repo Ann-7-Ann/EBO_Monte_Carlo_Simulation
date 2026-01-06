@@ -3,10 +3,11 @@ from config import *
 from core.vector import Vector
 from core.ray import Ray
 from components.mirror import Mirror
-from components.light_source import LightSource
+from sources.light_source import LightSource
+from sources.fiber import FiberSource
 from components.lens import Lens
 from simulation.scene import Scene
-from simulation.tracer import trace
+from simulation.tracer import trace_rays
 from ui.grid import draw_grid
 from ui.interaction import InteractionState
 
@@ -18,12 +19,16 @@ clock = pygame.time.Clock()
 scene = Scene()
 interaction = InteractionState()
 
+fiber = FiberSource(
+    pos_x=200,
+    pos_y = 300,
+
+)
+
+rays = fiber.emit(num_rays=21)
 
 scene.add(Mirror(Vector(400, 200), Vector(500, 300)))
 scene.add(Lens(Vector(400, 500), Vector(600, 500),f=100))
-
-source = LightSource(0, 250, 0)
-ray = source.emit()
 
 running = True
 while running:
@@ -51,7 +56,7 @@ while running:
     screen.fill(BG)
     draw_grid(screen)
 
-    trace(ray, scene, screen)
+    trace_rays(rays, scene, screen)
 
     for o in scene.objects:
         o.draw(screen)

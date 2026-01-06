@@ -16,11 +16,9 @@ class Mirror(OpticalElement):
         from simulation.intersection import ray_segment
         return ray_segment(ray, self.p1, self.p2)
 
-    def interact(self, ray, hit):
+    def interact(self, direction, hit):
         n = self.normal()
-        d = ray.dir
-        ray.dir = d - n * 2 * d.dot(n)
-        ray.pos = hit
+        return direction - n * 2 * direction.dot(n)
 
     def draw(self, screen):
         pygame.draw.line(screen, MIRROR_COLOR, self.p1.tuple(), self.p2.tuple(), 3)

@@ -12,22 +12,21 @@ class Lens(OpticalElement):
         self.p2 = p2
         self.f = f
 
-    def intersect(self, ray):
+    def intersect(self,  ray):
         from simulation.intersection import ray_segment
         return ray_segment(ray, self.p1, self.p2)
 
-    def interact(self, ray, hit):
+    def interact(self, direction, hit):
         axis = (self.p2 - self.p1).normalize()
         normal = axis.perp()
 
-        y = (ray.pos - hit).dot(normal)
-        theta = ray_to_theta(ray.dir, axis, normal)
+        y = (hit - self.p1).dot(normal)
+        theta = ray_to_theta(direction, axis, normal)
 
         M = thin_lens(self.f)
         y2, theta2 = (M @ [[y], [theta]]).flatten()
-
-        ray.pos = hit
-        ray.dir = theta_to_dir(theta2, axis, normal)
+        
+        return theta_to_dir(theta2, axis, normal)
 
     def draw(self, screen):
         pygame.draw.line(screen, LENS_COLOR, self.p1.tuple(), self.p2.tuple(), 2)
