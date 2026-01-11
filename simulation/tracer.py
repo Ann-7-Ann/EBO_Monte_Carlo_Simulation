@@ -33,6 +33,9 @@ def trace(ray, scene, screen):
 
         # interact updates direction only
         direction = obj.interact(direction,hit)
+        
+        if direction is None:
+            break
 
         pos = hit + direction * EPS
 
