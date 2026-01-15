@@ -22,10 +22,11 @@ interaction = InteractionState()
 fiber = FiberSource(
     pos_x=200,
     pos_y = 300,
+    cleave_angle=-8.0
 
 )
 
-rays = fiber.emit(num_rays=21)
+rays = fiber.emit(num_rays=210) 
 
 scene.add(Mirror(Vector(400, 200), Vector(500, 300)))
 scene.add(Lens(Vector(400, 500), Vector(600, 500),f=100))
