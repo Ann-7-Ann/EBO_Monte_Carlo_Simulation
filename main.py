@@ -21,8 +21,8 @@ from ui.overlay import draw_overlay_lines
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
-font = pygame.font.SysFont("Arial", FONT_SIZE)
-font_small = pygame.font.SysFont("Arial", FONT_SMALL_SIZE)
+font = pygame.font.SysFont("Segoe UI, Helvetica Neue, Roboto", FONT_SIZE)
+font_small = pygame.font.SysFont("Segoe UI, Helvetica Neue, Roboto", FONT_SMALL_SIZE)
 
 
 # --- Scene / state ---
@@ -137,10 +137,10 @@ def _emit_all_rays():
             r = b.emit(ray_id_start=ray_id)
             rays.extend(r)
             ray_id += len(r)
-    else:
-        r = fiber.emit(num_rays=FIBER_NUM_RAYS, ray_id_start=ray_id)
-        rays.extend(r)
-        ray_id += len(r)
+    # else:
+    #     r = fiber.emit(num_rays=FIBER_NUM_RAYS, ray_id_start=ray_id)
+    #     rays.extend(r)
+    #     ray_id += len(r)
 
     return rays
 
@@ -195,6 +195,12 @@ while running:
                 sel.adjust_bulge(delta, max_abs=BULGE_WHEEL_MAX_ABS)
 
         if e.type == pygame.MOUSEBUTTONDOWN:
+            if e.button == 1:
+                # Check if exit button clicked
+                exit_btn_rect = pygame.Rect(WIDTH - 50, 15, 35, 35)
+                if exit_btn_rect.collidepoint((mx, my)):
+                    running = False
+                    continue
             if not canvas_area.collidepoint((mx, my)):
                 continue
 
@@ -240,7 +246,7 @@ while running:
                     if hasattr(obj, "contains_point") and obj.contains_point(mouse):
                         clicked_obj = obj
                         interaction.dragging = obj
-                        interaction.drag_mode = "move" if pygame.key.get_mods() & pygame.KMOD_SHIFT else "rotate"
+                        interaction.drag_mode = "rotate" if pygame.key.get_mods() & pygame.KMOD_SHIFT else "move"
                         break
 
                 interaction.selected = clicked_obj
@@ -303,20 +309,61 @@ while running:
             interaction.drag_mode = None
             interaction.last_mouse = None
 
-    # --- draw ---
+        # --- draw ---
     screen.fill(BG)
 
-    # UI bar
+    # Modern top bar with gradient feel
     pygame.draw.rect(screen, UI_BG, (0, 0, WIDTH, UI_BAR_H))
-    title = font.render("Optical Ray Tracer", True, TEXT_COLOR)
-    screen.blit(title, (20, 12))
+    
+    # Subtle separator line
+    pygame.draw.line(screen, SIDEBAR_BORDER, (0, UI_BAR_H - 1), (WIDTH, UI_BAR_H - 1), 2)
+    
+    # Title section 
+        # Title section 
+    title_font = pygame.font.SysFont("Segoe UI, Helvetica Neue, Roboto", 30, bold=True)
+    subtitle_font = pygame.font.SysFont("Segoe UI, Helvetica Neue, Roboto", 16)
+    
+    title = title_font.render("Optical Ray Tracer", True, UI_TEXT_PRIMARY)
+    subtitle = subtitle_font.render("Professional Simulation Environment", True, (168, 85, 247))
+    
+    screen.blit(title, (28, 14))
+    screen.blit(subtitle, (29, 55))
+    
+    # Keyboard hints 
+        # Keyboard hints 
+    hints_font = pygame.font.SysFont("Segoe UI, Helvetica Neue, Roboto", 17)
+    hint_text = "Drag to move  •  SHIFT+drag to rotate  •  Right-click to delete  •  C to calibrate  •  Wheel to adjust bulge"
+    hint_surf = hints_font.render(hint_text, True, (170, 180, 200))
+    hint_rect = hint_surf.get_rect(topleft=(SIDEBAR_W + 20, 55))
+    screen.blit(hint_surf, hint_rect)
+    
+    # Exit button (top-right)
+    exit_btn_rect = pygame.Rect(WIDTH - 50, 15, 35, 35)
+    exit_hover = exit_btn_rect.collidepoint((mx, my))
+    
+    if exit_hover:
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+    
+    # Button background
+    exit_color = (168, 85, 247) if exit_hover else (100, 110, 130)
+    pygame.draw.rect(screen, exit_color, exit_btn_rect, border_radius=8)
+    pygame.draw.rect(screen, (150, 160, 180), exit_btn_rect, 2, border_radius=8)
+    
+    # X icon 
+    line_width = 2
+    x_offset = 9
+    y_offset = 9
+    pygame.draw.line(screen, (240, 240, 240),
+                     (exit_btn_rect.x + x_offset, exit_btn_rect.y + y_offset),
+                     (exit_btn_rect.x + 35 - x_offset, exit_btn_rect.y + 35 - y_offset), line_width)
+    pygame.draw.line(screen, (240, 240, 240),
+                     (exit_btn_rect.x + 35 - x_offset, exit_btn_rect.y + y_offset),
+                     (exit_btn_rect.x + x_offset, exit_btn_rect.y + 35 - y_offset), line_width)
+    
+    # Store for click detection
+    interaction.exit_btn_rect = exit_btn_rect
 
-    hint1 = "Use sidebar to add elements | Drag endpoints=resize | Drag segment=rotate | SHIFT+drag=move"
-    hint2 = "Right-click=delete | Wheel (Lensed selected)=bulge | C=calibrate"
-    screen.blit(font_small.render(hint1, True, TEXT_COLOR), (20, 44))
-    screen.blit(font_small.render(hint2, True, TEXT_COLOR), (20, 62))
-
-    # Sidebar background + border
+    # Sidebar 
     pygame.draw.rect(screen, SIDEBAR_BG, sidebar_area)
     pygame.draw.line(screen, SIDEBAR_BORDER, (SIDEBAR_W, UI_BAR_H), (SIDEBAR_W, HEIGHT), 2)
 
@@ -325,6 +372,27 @@ while running:
     for g in groups:
         g.draw(screen, font)
     screen.set_clip(None)
+
+    screen.set_clip(None)
+
+    # Reset cursor to default if not hovering any interactive element
+    cursor_is_hovering = False
+    
+    # Check if hovering any button or group header
+    for g in groups:
+        if g.hovered or any(b.hovered for b in g.buttons):
+            cursor_is_hovering = True
+            break
+    
+    # Check if hovering exit button
+    if exit_hover:
+        cursor_is_hovering = True
+    
+    # Set cursor based on hover state
+    if cursor_is_hovering:
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+    else:
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     # Canvas
     screen.set_clip(canvas_area)
@@ -344,12 +412,19 @@ while running:
     for o in scene.objects:
         o.draw(screen)
 
-    # Labels near detectors
+        # Labels near detectors (with background for visibility)
     for o in scene.objects:
         if isinstance(o, Detector):
             cx = (o.p1.x + o.p2.x) / 2
             cy = (o.p1.y + o.p2.y) / 2
-            label = font_small.render(f"{o.count} rays", True, TEXT_COLOR)
+            label = font_small.render(f"{o.count} rays", True, (20, 20, 30))  # Dark text
+            
+            # Draw background rectangle
+            label_rect = label.get_rect(topleft=(cx + 6, cy + 6))
+            label_rect.inflate_ip(8, 4)  # Add padding
+            pygame.draw.rect(screen, (200, 200, 220), label_rect, border_radius=4)  # Light background
+            pygame.draw.rect(screen, (150, 150, 170), label_rect, 1, border_radius=4)  # Border
+            
             screen.blit(label, (cx + 6, cy + 6))
 
     # Preview while adding
