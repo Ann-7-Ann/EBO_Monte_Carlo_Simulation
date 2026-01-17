@@ -15,13 +15,11 @@ class Ray:
         direction: Vector,
         ray_id: int | None = None,
         power: float = 1.0,
-        wavelength_nm: float | None = None,
     ):
         self.pos = pos
         self.dir = direction.normalize()
         self.ray_id = ray_id
         self.power = float(power)
-        self.wavelength_nm = wavelength_nm
 
     @classmethod
     def from_angle(cls, x: float, y: float, angle_deg: float, **kwargs):

@@ -45,7 +45,7 @@ GROUP_PAD = 12
 GROUP_GAP = 8
 
 # --- Units (pixels -> micrometers) ---
-UM_PER_PX_DEFAULT = 1.0
+UM_PER_PX_DEFAULT = 100000
 REF_D1_UM_DEFAULT = 615.0
 OVERLAY_MAX_HITS = 30
 
@@ -59,8 +59,8 @@ BEAM_DEFAULT_POS_SPACING_PX = 10.0
 BEAM_DEFAULT_ANGLE_SAMPLES = 5
 
 # --- Medium defaults ---
-ALPHA_PER_UM_DEFAULT = 0.0
+ALPHA_PER_UM_DEFAULT = 8.863 # 1/meter
 
 # --- Fiber defaults ---
-FIBER_NUM_RAYS = 21
+FIBER_NUM_RAYS = 210
 

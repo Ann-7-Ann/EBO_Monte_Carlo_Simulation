@@ -5,6 +5,7 @@ from config import *
 from core.vector import Vector
 from components.mirror import Mirror
 from components.lensed_mirror import LensedMirror
+from components.media_interface import MediaInterface
 from components.lens import Lens
 from components.detector import Detector
 from sources.beam import Beam
@@ -57,9 +58,16 @@ def cb_add_detector():
 def cb_add_beam():
     interaction.add_mode = "beam"
 
+def cb_add_media():
+    interaction.add_mode = "media"
+
+
+def cb_clear_media():
+    scene.clear_by_type(MediaInterface)
 
 def cb_clear_fiber():
     scene.clear_by_type(FiberSource)
+    scene.clear_by_type(MediaInterface)
 
 def cb_clear_mirrors():
     scene.clear_by_type(Mirror)
@@ -108,6 +116,8 @@ groups = [
         [
             Button(0, 0, 0, 0, "Add Lens", cb_add_lens),
             Button(0, 0, 0, 0, "Clear Lenses", cb_clear_lenses),
+            Button(0, 0, 0, 0, "Add Media Interface", cb_add_media),
+            Button(0, 0, 0, 0, "Clear Media Interface", cb_clear_media),
         ],
         expanded=True,
     ),
@@ -287,6 +297,8 @@ while running:
                         scene.add(Lens(Vector(a.x, a.y), Vector(b.x, b.y), f=140))
                     elif interaction.add_mode == "detector":
                         scene.add(Detector(Vector(a.x, a.y), Vector(b.x, b.y)))
+                    elif interaction.add_mode == "media":
+                        scene.add(MediaInterface(Vector(a.x, a.y), Vector(b.x, b.y)))
                     elif interaction.add_mode == "beam":
                         scene.add(Beam(Vector(a.x, a.y), Vector(b.x, b.y),
                                        spread_deg=BEAM_DEFAULT_SPREAD_DEG,
@@ -296,6 +308,7 @@ while running:
                 elif interaction.add_mode == "fiber": 
                     fiber = FiberSource(a.x, a.y)
                     scene.add(fiber)
+                    scene.add(fiber.facet)
                         
 
                 interaction.start_pos = None
