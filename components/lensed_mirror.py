@@ -62,6 +62,14 @@ class LensedMirror(OpticalElement):
             b = max(-abs(max_abs), min(abs(max_abs), b))
         self.set_bulge(b)
 
+    def get_params_str(self):
+        radius_str = f"{self.radius:.2f}" if self.radius else "N/A"
+        return [
+            f"LensedMirror: p1=({self.p1.x:.1f}, {self.p1.y:.1f})",
+            f"p2=({self.p2.x:.1f}, {self.p2.y:.1f})",
+            f"bulge={self.bulge:.2f}px, radius={radius_str}px"
+        ]
+
     # ---- geometry ----
     def _update_geometry(self):
         chord = self.p2 - self.p1

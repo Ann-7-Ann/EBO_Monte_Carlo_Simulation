@@ -7,7 +7,7 @@ from components.mirror import Mirror
 from components.lensed_mirror import LensedMirror
 from components.lens import Lens
 from components.detector import Detector
-from components.beam import Beam
+from sources.beam import Beam
 from sources.fiber import FiberSource
 from simulation.scene import Scene
 from simulation.tracer import trace_rays, trace_hits
@@ -33,20 +33,11 @@ interaction = InteractionState()
 interaction.um_per_px = UM_PER_PX_DEFAULT
 interaction.ref_d1_um = REF_D1_UM_DEFAULT
 
-# Optional fiber (used only if no beams exist)
-fiber = FiberSource(pos_x=200, pos_y=300, total_power=1.0)
-FIBER_NUM_RAYS = 21
-
-# Default optical setup
-scene.add(Beam(Vector(170, 300), Vector(230, 300), spread_deg=BEAM_DEFAULT_SPREAD_DEG,
-               pos_spacing_px=BEAM_DEFAULT_POS_SPACING_PX,
-               angle_samples=BEAM_DEFAULT_ANGLE_SAMPLES,
-               total_power=1.0))
-scene.add(Mirror(Vector(400, 200), Vector(500, 300)))
-scene.add(Lens(Vector(400, 500), Vector(600, 500), f=140))
-
-
 # --- editor callbacks ---
+
+def cb_add_fiber():
+    interaction.add_mode = "fiber" 
+
 def cb_add_mirror():
     interaction.add_mode = "mirror"
 
@@ -66,6 +57,9 @@ def cb_add_detector():
 def cb_add_beam():
     interaction.add_mode = "beam"
 
+
+def cb_clear_fiber():
+    scene.clear_by_type(FiberSource)
 
 def cb_clear_mirrors():
     scene.clear_by_type(Mirror)
@@ -92,6 +86,8 @@ groups = [
     CollapsibleGroup(
         "Sources",
         [
+            Button(0, 0, 0, 0, "Add Fiber", cb_add_fiber),
+            Button(0, 0, 0, 0, "Clear Fiber", cb_clear_fiber),
             Button(0, 0, 0, 0, "Add Beam", cb_add_beam),
             Button(0, 0, 0, 0, "Clear Beams", cb_clear_beams),
         ],
@@ -126,22 +122,19 @@ groups = [
 ]
 
 
-def _emit_all_rays():
-    """Emit rays from all Beam sources; if none exist, fall back to fiber."""
+def _emit_rays():
     beams = [o for o in scene.objects if isinstance(o, Beam)]
+    fibers = [o for o in scene.objects if isinstance(o, FiberSource)]
     rays = []
     ray_id = 0
-
     if beams:
         for b in beams:
             r = b.emit(ray_id_start=ray_id)
             rays.extend(r)
             ray_id += len(r)
-    # else:
-    #     r = fiber.emit(num_rays=FIBER_NUM_RAYS, ray_id_start=ray_id)
-    #     rays.extend(r)
-    #     ray_id += len(r)
-
+    elif fibers:
+        fiber = fibers[0]  # Assume one fiber for simplicity
+        rays = fiber.emit(num_rays=FIBER_NUM_RAYS, ray_id_start=0)
     return rays
 
 
@@ -178,7 +171,7 @@ while running:
         if e.type == pygame.KEYDOWN:
             if e.key == pygame.K_c:
                 # Calibrate µm/px using first hit of the reference ray.
-                rays_tmp = _emit_all_rays()
+                rays_tmp = _emit_rays()
                 if rays_tmp:
                     ref_ray = rays_tmp[len(rays_tmp) // 2]
                     hits = trace_hits(ref_ray, scene, max_hits=1)
@@ -300,6 +293,10 @@ while running:
                                        pos_spacing_px=BEAM_DEFAULT_POS_SPACING_PX,
                                        angle_samples=BEAM_DEFAULT_ANGLE_SAMPLES,
                                        total_power=1.0))
+                elif interaction.add_mode == "fiber": 
+                    fiber = FiberSource(a.x, a.y)
+                    scene.add(fiber)
+                        
 
                 interaction.start_pos = None
                 interaction.current_pos = None
@@ -403,14 +400,16 @@ while running:
         if isinstance(o, Detector):
             o.reset()
 
-    rays = _emit_all_rays()
-    p_emitted = sum(getattr(r, "power", 0.0) for r in rays)
+    # Emit rays
+    rays = _emit_rays()
+    p_emitted = sum(getattr(r, "power", 1.0) for r in rays)
 
     trace_rays(rays, scene, screen, um_per_px=interaction.um_per_px)
 
     # Draw objects
     for o in scene.objects:
-        o.draw(screen)
+        if hasattr(o, 'draw'):
+            o.draw(screen)
 
         # Labels near detectors (with background for visibility)
     for o in scene.objects:
@@ -440,6 +439,31 @@ while running:
         pygame.draw.line(screen, preview_color, interaction.start_pos.tuple(), interaction.current_pos.tuple(), 2)
 
     screen.set_clip(None)
+
+    # Check for hover on objects for parameter display
+    hover_info = None
+    for o in scene.objects:
+        if hasattr(o, "contains_point") and o.contains_point(mouse):
+            if hasattr(o, "get_params_str"):
+                hover_info = o.get_params_str()
+                break  # Show only the first hovered object
+
+    # Draw hover tooltip box if hovering
+    if hover_info:
+        tooltip_font = font_small
+        line_surfaces = [tooltip_font.render(line, True, (255, 255, 255)) for line in hover_info]
+        line_heights = [surf.get_height() for surf in line_surfaces]
+        max_width = max(surf.get_width() for surf in line_surfaces)
+        total_height = sum(line_heights)
+        box_width = max_width + 16  # Padding
+        box_height = total_height + 8  # Padding
+        tooltip_rect = pygame.Rect(mx + 10, my + 10, box_width, box_height)
+        pygame.draw.rect(screen, (100, 100, 100), tooltip_rect, border_radius=4)  # Grey background
+        pygame.draw.rect(screen, (150, 150, 150), tooltip_rect, 1, border_radius=4)  # Border
+        y_offset = my + 14
+        for surf in line_surfaces:
+            screen.blit(surf, (mx + 18, y_offset))
+            y_offset += surf.get_height()
 
     # --- Left overlay (units + medium + selection + detectors + IL) ---
     overlay_lines = [

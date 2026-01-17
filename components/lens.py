@@ -52,3 +52,9 @@ class Lens(OpticalElement):
 
     def contains_point(self, pos):
         return point_segment_distance(pos, self.p1, self.p2) < 8
+
+    def get_params_str(self):
+        return [
+            f"Lens: p1=({self.p1.x:.1f}, {self.p1.y:.1f})",
+            f"p2=({self.p2.x:.1f}, {self.p2.y:.1f}), f={self.f:.2f}px"
+        ]

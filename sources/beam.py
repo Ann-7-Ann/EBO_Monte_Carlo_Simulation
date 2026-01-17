@@ -90,3 +90,10 @@ class Beam:
 
     def contains_point(self, pos: Vector):
         return point_segment_distance(pos, self.p1, self.p2) < 8
+
+    def get_params_str(self):
+        return [
+            f"Beam: p1=({self.p1.x:.1f}, {self.p1.y:.1f}), p2=({self.p2.x:.1f}, {self.p2.y:.1f})",
+            f"spread={self.spread_deg:.1f}°, angles={self.angle_samples}",
+            f"spacing={self.pos_spacing_px:.1f}px, power={self.total_power:.4f}"
+        ]

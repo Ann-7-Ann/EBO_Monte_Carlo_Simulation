@@ -60,3 +60,7 @@ BEAM_DEFAULT_ANGLE_SAMPLES = 5
 
 # --- Medium defaults ---
 ALPHA_PER_UM_DEFAULT = 0.0
+
+# --- Fiber defaults ---
+FIBER_NUM_RAYS = 21
+

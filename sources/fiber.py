@@ -1,8 +1,9 @@
 import math
+import pygame
 from core.vector import Vector
 from core.ray import Ray
 from core.transform import deg_to_rad
-
+from config import BEAM_COLOR
 
 class FiberSource:
     def __init__(
@@ -63,3 +64,20 @@ class FiberSource:
             )
 
         return rays
+
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, BEAM_COLOR, (self.pos.x, self.pos.y), 5)
+
+    def get_params_str(self):
+        return [
+            f"Fiber: pos=({self.pos.x:.1f}, {self.pos.y:.1f})",
+            f"mfd={self.mfd:.2f}, cladding_d={self.cladding_diameter:.2f}",
+            f"n_core={self.n_core:.3f}, cleave_angle={math.degrees(self.cleave_angle):.1f}°",
+            f"core_offset=({self.core_offset.x:.2f}, {self.core_offset.y:.2f})",
+            f"angle={math.degrees(self.angle):.1f}°, offset=({self.offset.x:.2f}, {self.offset.y:.2f})",
+            f"power={self.total_power:.4f}"
+        ]
+
+    def contains_point(self, pos: Vector):
+        return (pos - self.pos).length() < 10
