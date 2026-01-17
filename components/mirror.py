@@ -16,7 +16,9 @@ class Mirror(OpticalElement):
         from simulation.intersection import ray_segment
         return ray_segment(ray, self.p1, self.p2)
 
-    def interact(self, direction, hit):
+    def interact(self, ray, hit):
+        """Specular reflection from a flat mirror."""
+        direction = ray.dir
         n = self.normal()
         return direction - n * 2 * direction.dot(n)
 
@@ -25,3 +27,9 @@ class Mirror(OpticalElement):
     
     def contains_point(self, pos):
         return point_segment_distance(pos, self.p1, self.p2) < 8
+
+    def get_params_str(self):
+        return [
+            f"Mirror: p1=({self.p1.x:.1f}, {self.p1.y:.1f})",
+            f"p2=({self.p2.x:.1f}, {self.p2.y:.1f})"
+        ]

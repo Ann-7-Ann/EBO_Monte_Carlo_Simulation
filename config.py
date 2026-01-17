@@ -1,8 +1,66 @@
-WIDTH, HEIGHT = 1000, 600
-BG = (15, 23, 42)
+WIDTH, HEIGHT = 1280, 720
+
+# Modern 2026 color palette - Dark mode with accent colors
+BG = (10, 12, 20)  # Deep dark background
 RAY_COLOR = (255, 209, 102)
-MIRROR_COLOR = (56, 189, 248)
-LENS_COLOR = (56, 0, 248)
-GRID_COLOR = (148, 163, 184)
+RAY_WIDTH = 2
+
+# Elements
+MIRROR_COLOR = (88, 199, 255)
+LENSED_MIRROR_COLOR = (54, 172, 255)
+LENS_COLOR = (139, 92, 246)
+DETECTOR_COLOR = (239, 68, 68)
+BEAM_COLOR = (255, 182, 193)
+
+GRID_COLOR = (40, 45, 65)
 EPS = 1e-4
 MAX_BOUNCES = 10
+
+# --- UI ---
+UI_BAR_H = 100
+UI_BG = (15, 17, 28)  # Slightly lighter than background
+UI_TEXT_PRIMARY = (230, 234, 243)
+UI_TEXT_SECONDARY = (149, 157, 179)
+
+# Left sidebar
+SIDEBAR_W = 320
+SIDEBAR_BG = (18, 21, 35)
+SIDEBAR_BORDER = (40, 45, 65)
+SIDEBAR_PAD = 16
+BTN_BG = (30, 35, 55)
+BTN_BG_HOVER = (45, 52, 80)
+BTN_BG_ACTIVE = (80, 100, 150)
+BTN_BORDER = (55, 62, 90)
+TEXT_COLOR = UI_TEXT_PRIMARY
+
+# UI sizing
+FONT_SIZE = 18
+FONT_SMALL_SIZE = 14
+OVERLAY_LINE_STEP = 22
+
+# Sidebar layout
+GROUP_HEADER_H = 42
+GROUP_BUTTON_H = 38
+GROUP_PAD = 12
+GROUP_GAP = 8
+
+# --- Units (pixels -> micrometers) ---
+UM_PER_PX_DEFAULT = 1.0
+REF_D1_UM_DEFAULT = 615.0
+OVERLAY_MAX_HITS = 30
+
+# --- LensedMirror interaction ---
+BULGE_WHEEL_STEP = 5.0
+BULGE_WHEEL_MAX_ABS = 400.0
+
+# --- Beam defaults ---
+BEAM_DEFAULT_SPREAD_DEG = 12.0
+BEAM_DEFAULT_POS_SPACING_PX = 10.0
+BEAM_DEFAULT_ANGLE_SAMPLES = 5
+
+# --- Medium defaults ---
+ALPHA_PER_UM_DEFAULT = 0.0
+
+# --- Fiber defaults ---
+FIBER_NUM_RAYS = 21
+
