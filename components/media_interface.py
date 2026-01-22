@@ -4,6 +4,7 @@ from core.matrices import interface
 from core.transform import ray_to_theta, theta_to_dir
 from simulation.hittest import point_segment_distance
 import pygame
+import math
 
 
 class MediaInterface(OpticalElement):
@@ -33,32 +34,23 @@ class MediaInterface(OpticalElement):
         return ray_segment(ray, self.p1, self.p2)
 
     def interact(self, ray, hit):
-        """
-        Computes how the ray direction changes when crossing the interface
-        using Snell’s law in matrix form.
-        """
-
-        # Incoming ray direction vector
-        direction = ray.dir
-
-        # Unit vector along the interface
+        d = ray.dir
         axis = (self.p2 - self.p1).normalize()
-
-        # Perpendicular (normal) to the interface
         normal = axis.perp()
 
-        # Convert ray direction into an angle relative to the interface
-        # (measured in the basis defined by axis and normal)
-        theta = ray_to_theta(direction, axis, normal)
+        # Determine incident side
+        dot = d.dot(normal)
+        if abs(dot) < 1e-12:
+            dot = 1e-12  # avoid zero
+        if dot > 0:
+            normal = -normal
 
-        # Interface matrix implementing Snell's law
+        theta = ray_to_theta(d, axis, normal)
+
         M = interface(self.n1, self.n2)
 
-        # Apply the interface matrix to the ray angle
-        # Input vector is [height, angle]; height is 0 at the interface
-        _, theta2 = (M @ [[0], [theta]]).flatten()
-
-        # Convert the refracted angle back into a direction vector
+        h, theta2 = (M @ [[0], [theta]]).flatten()
+        
         return theta_to_dir(theta2, axis, normal)
 
     def contains_point(self, pos):

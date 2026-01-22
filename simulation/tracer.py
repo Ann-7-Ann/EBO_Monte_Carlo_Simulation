@@ -10,26 +10,24 @@ def trace(ray, scene, screen, um_per_px: float = 1.0):
     power = getattr(ray, "power", 1.0)
 
     for _ in range(MAX_BOUNCES):
-        temp_ray = Ray(pos, direction, ray_id=getattr(ray, "ray_id", None), power=power)
-        obj, hit = scene.nearest_hit(temp_ray)
-
+        obj, hit = scene.nearest_hit(Ray(pos, direction, ray_id=ray.ray_id, power=power))
         if not obj:
             end = pos + direction * 2000
             pygame.draw.line(screen, RAY_COLOR, pos.tuple(), end.tuple(), RAY_WIDTH)
             break
 
         # Travel distance to hit
-        seg_px = (hit - pos).length()
-        seg_um = seg_px * float(um_per_px)
+        seg_um = (hit - pos).length() * um_per_px
         power = scene.medium.apply_absorption(power, seg_um)
-        temp_ray.power = power
 
         pygame.draw.line(screen, RAY_COLOR, pos.tuple(), hit.tuple(), RAY_WIDTH)
 
-        # Interaction updates direction (detectors may record power/ray_id)
-        direction = obj.interact(temp_ray, hit)
+        # Interaction gives new direction (TIR/refraction)
+        direction = obj.interact(Ray(pos, direction, power=power), hit)
 
+        # Step slightly forward
         pos = hit + direction * EPS
+
 
 
 def trace_hits(ray, scene, max_hits=30):

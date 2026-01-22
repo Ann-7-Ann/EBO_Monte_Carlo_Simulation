@@ -20,13 +20,13 @@ class FiberSource:
         pos_x,                     # Fiber end position along propagation axis (x)
         pos_y,                     # Fiber end transverse position (y)
         mfd=9.232917,              # Mode field diameter of the fiber core
-        cladding_diameter=124.9329e-6, # Fiber cladding diameter
-        n_core=1.4527e-6,              # Refractive index of the fiber core
+        cladding_diameter=124.9329 , # Fiber cladding diameter
+        n_core=1.4527,              # Refractive index of the fiber core
         cleave_angle=-8.0,           # Fiber cleave angle in degrees
         core_offset=(0, 0),        # Offset of core center from fiber geometric center
         angle_deg=0.0,             # Central launch angle (pedestal angle) in degrees
         total_power=1.0,
-        wavelength = 1.3e-6         # meters
+        wavelength = 1.31        # meters
         
     ):
         # Position of fiber end
@@ -49,11 +49,31 @@ class FiberSource:
         self.total_power = float(total_power)
         self.wavelength = wavelength
 
+        # Unrotated facet relative to fiber center
+        half_clad = self.cladding_diameter / 2
+        p1_local = Vector(10, -half_clad)
+        p2_local = Vector(10, half_clad)
+
+        # Rotate by cleave angle
+        cos_theta = math.cos(self.cleave_angle)
+        sin_theta = math.sin(self.cleave_angle)
+
+        p1_rot = Vector(
+            p1_local.x * cos_theta - p1_local.y * sin_theta,
+            p1_local.x * sin_theta + p1_local.y * cos_theta
+        ) + self.pos
+
+        p2_rot = Vector(
+            p2_local.x * cos_theta - p2_local.y * sin_theta,
+            p2_local.x * sin_theta + p2_local.y * cos_theta
+        ) + self.pos
+
+        # Set the facet with rotated coordinates
         self.facet = MediaInterface(
-        p1 = self.pos + Vector(0, -self.cladding_diameter/2),
-        p2 = self.pos + Vector(0,  self.cladding_diameter/2),
-        n1 = self.n_core,
-        n2 = 1.5218
+            p1=p1_rot,
+            p2=p2_rot,
+            n1=self.n_core,
+            n2=1.5218
         )
 
 
@@ -79,15 +99,14 @@ class FiberSource:
         # Approximate "waist" of the Gaussian mode (half the mode field diameter)
         waist = self.mfd / 2        # meters
         theta_div = self.wavelength / (math.pi * waist)  #angular standard deviation
-        per_ray_power = self.total_power / num_rays
 
 
         for i in range(num_rays):
             # Gaussian transverse offset from fiber core center
             theta_spread = random.gauss(0, theta_div)
 
-            # Launch angle (paraxial) includes cleave angle and small spread
-            theta = self.angle + self.cleave_angle + theta_spread
+            # Launch angle (paraxial) includes small spread
+            theta = self.angle +  theta_spread
 
             # Direction vector of the ray (unit vector)
             direction = Vector(
@@ -127,3 +146,13 @@ class FiberSource:
 
     def contains_point(self, pos: Vector):
         return (pos - self.pos).length() < 10
+
+
+    def sample_fiber_params(self):
+        return {
+            "mfd": np.random.normal(self.mfd, 0.082087287),
+            "cladding_diameter": np.random.normal(self.cladding_diameter, 0.130657401),
+            "cleave_angle": np.random.normal(self.cleave_angle, 1/3),  
+            "core_offset": (np.random.normal(self.core_offset.x, 0.155024366)),
+            "angle": np.random.normal(self.angle, 0.001),  
+        }

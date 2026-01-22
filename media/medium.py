@@ -2,28 +2,26 @@ import math
 
 
 class Medium:
-    """Uniform medium model with Beer-Lambert absorption.
+    """
+    Uniform medium with Beer–Lambert absorption using
+    the optical extinction coefficient k.
 
-    Parameters:
-        alpha_per_um: absorption coefficient in 1/µm.
-            Power decays as: P_out = P_in * exp(-alpha * L_um)
-
-    Notes:
-        If you later want to use the optical extinction coefficient `k`
-        (imag part of refractive index), you can convert using:
-            alpha = 4πk / λ
-        (requires wavelength λ in the same length units).
+    alpha = 4πk / λ
     """
 
-    def __init__(self, alpha_per_um: float = 0.0):
-        self.alpha_per_um = float(alpha_per_um)
+    def __init__(self, k: float, wavelength_um: float):
+        self.k = float(k)
+        self.wavelength_um = float(wavelength_um)
+
+        # Convert k -> absorption coefficient (1/µm)
+        self.alpha_per_um = 4 * math.pi * self.k / self.wavelength_um
 
     def apply_absorption(self, power: float, distance_um: float) -> float:
         if power <= 0.0:
             return 0.0
         if self.alpha_per_um <= 0.0:
             return power
-        # Guard against extreme exponent overflow.
+
         x = -self.alpha_per_um * max(0.0, distance_um)
         if x < -700:
             return 0.0

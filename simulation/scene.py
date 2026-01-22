@@ -5,7 +5,7 @@ from media.medium import Medium
 class Scene:
     def __init__(self, medium: Medium | None = None):
         self.objects = []
-        self.medium = medium if medium is not None else Medium(alpha_per_um=0.0)
+        self.medium = medium if medium is not None else Medium(k=0.0, wavelength_um=1.31)
 
     def add(self, obj):
         self.objects.append(obj)
