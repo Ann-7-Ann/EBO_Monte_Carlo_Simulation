@@ -26,8 +26,7 @@ class FiberSource:
         core_offset=(0, 0),        # Offset of core center from fiber geometric center
         angle_deg=0.0,             # Central launch angle (pedestal angle) in degrees
         total_power=1.0,
-        wavelength = 1.31        # meters
-        
+        wavelength = 1.31       
     ):
         # Position of fiber end
         self.pos = Vector(pos_x, pos_y)

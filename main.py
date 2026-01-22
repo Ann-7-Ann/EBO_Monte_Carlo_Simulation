@@ -8,8 +8,8 @@ from components.lensed_mirror import LensedMirror
 from components.media_interface import MediaInterface
 from components.lens import Lens
 from components.detector import Detector
-from sources.beam import Beam
-from sources.fiber import FiberSource
+from components.sources.beam import Beam
+from components.sources.fiber import FiberSource
 from simulation.scene import Scene
 from simulation.tracer import trace_rays, trace_hits
 from ui.grid import draw_grid
@@ -17,6 +17,8 @@ from ui.interaction import InteractionState
 from ui.button import Button
 from ui.collapsible_group import CollapsibleGroup
 from ui.overlay import draw_overlay_lines
+from file_conversion.input_file import load_elements
+from file_conversion.extract_param_to_file import save_scene
 
 
 pygame.init()
@@ -88,9 +90,70 @@ def cb_clear_detectors():
 def cb_clear_beams():
     scene.clear_by_type(Beam)
 
+def cb_load_scene():
+    import tkinter as tk
+    from tkinter import filedialog
+
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+
+    file_path = filedialog.askopenfilename(
+        title="Load optical scene",
+        filetypes=[
+            ("Scene files", "*.json *.yaml *.yml"),
+            ("JSON files", "*.json"),
+            ("YAML files", "*.yaml *.yml"),
+        ],
+    )
+
+    if not file_path:
+        return
+
+    try:
+        elements = load_elements(file_path)
+
+        scene.clear()
+        for el in elements:
+            scene.add(el)
+
+            # FiberSource special case (facet)
+            if isinstance(el, FiberSource):
+                scene.add(el.facet)
+
+    except Exception as e:
+        print(f"[ERROR] Failed to load scene: {e}")
+
+def cb_save_scene():
+    import tkinter as tk
+    from tkinter import filedialog
+
+
+    root = tk.Tk()
+    root.withdraw()
+
+    file_path = filedialog.asksaveasfilename(
+        title="Save optical scene",
+        defaultextension=".json",
+        filetypes=[("JSON files", "*.json")],
+    )
+
+    if not file_path:
+        return
+
+    save_scene(scene, file_path)
+
 
 # Sidebar: expandable tool groups (supervisor suggestion)
 groups = [
+    CollapsibleGroup(
+        "Scene",
+        [
+            Button(0, 0, 0, 0, "Load Scene", cb_load_scene),
+            Button(0, 0, 0, 0, "Save Scene", cb_save_scene),
+            
+        ],
+        expanded=True,
+    ),
     CollapsibleGroup(
         "Sources",
         [

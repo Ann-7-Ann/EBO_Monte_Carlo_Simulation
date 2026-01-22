@@ -37,3 +37,7 @@ class Scene:
                 hit = h
 
         return (obj_hit, hit) if obj_hit else (None, None)
+    
+    def clear(self):
+        for obj in self.objects:
+            self.objects.remove(obj)
