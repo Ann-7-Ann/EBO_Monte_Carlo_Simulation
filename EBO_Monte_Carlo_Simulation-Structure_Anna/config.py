@@ -1,0 +1,86 @@
+WIDTH, HEIGHT = 1280, 720
+
+# Modern 2026 color palette - Dark mode with accent colors
+BG = (10, 12, 20)  # Deep dark background
+RAY_COLOR = (255, 209, 102)
+RAY_WIDTH = 2
+
+# Elements
+MIRROR_COLOR = (88, 199, 255)
+LENSED_MIRROR_COLOR = (54, 172, 255)
+LENS_COLOR = (139, 92, 246)
+DETECTOR_COLOR = (239, 68, 68)
+BEAM_COLOR = (255, 182, 193)
+
+GRID_COLOR = (40, 45, 65)
+EPS = 1e-4
+MAX_BOUNCES = 10
+
+# --- UI ---
+UI_BAR_H = 100
+UI_BG = (15, 17, 28)  # Slightly lighter than background
+UI_TEXT_PRIMARY = (230, 234, 243)
+UI_TEXT_SECONDARY = (149, 157, 179)
+
+# Left sidebar
+SIDEBAR_W = 320
+SIDEBAR_BG = (18, 21, 35)
+SIDEBAR_BORDER = (40, 45, 65)
+SIDEBAR_PAD = 16
+BTN_BG = (30, 35, 55)
+BTN_BG_HOVER = (45, 52, 80)
+BTN_BG_ACTIVE = (80, 100, 150)
+BTN_BORDER = (55, 62, 90)
+TEXT_COLOR = UI_TEXT_PRIMARY
+
+# UI sizing
+FONT_SIZE = 18
+FONT_SMALL_SIZE = 14
+OVERLAY_LINE_STEP = 22
+
+# Sidebar layout
+GROUP_HEADER_H = 42
+GROUP_BUTTON_H = 38
+GROUP_FIELD_H = 34
+GROUP_PAD = 12
+GROUP_GAP = 8
+
+# --- Units (pixels -> micrometers) ---
+UM_PER_PX_DEFAULT = 1.0
+REF_D1_UM_DEFAULT = 615.0
+OVERLAY_MAX_HITS = 30
+
+# --- LensedMirror interaction ---
+BULGE_WHEEL_STEP = 5.0
+BULGE_WHEEL_MAX_ABS = 400.0
+
+# --- Beam defaults ---
+BEAM_DEFAULT_SPREAD_DEG = 12.0
+BEAM_DEFAULT_POS_SPACING_PX = 10.0
+BEAM_DEFAULT_ANGLE_SAMPLES = 5
+
+# --- Medium defaults ---
+ALPHA_PER_UM_DEFAULT = 0.0  # 1/µm (Beer–Lambert)
+
+# --- Background refractive index ---
+BACKGROUND_N_DEFAULT = 1.0
+
+# --- Snapping ---
+GRID_STEP_PX = 50
+SNAP_RADIUS_PX = 12
+SNAP_ENABLED_DEFAULT = True
+
+# --- Fiber defaults ---
+FIBER_NUM_RAYS = 210
+
+# --- Experiment / Monte Carlo ---
+SEED_DEFAULT = 12345
+DRAW_RAYS_DEFAULT = True
+MAX_RAYS_DEFAULT = 2000
+
+# --- Sweep defaults ---
+SWEEP_START_DEFAULT = 0.0
+SWEEP_STOP_DEFAULT = 0.0
+SWEEP_STEP_DEFAULT = 1.0
+SWEEP_RAYS_PER_STEP_DEFAULT = 2000
+
