@@ -11,7 +11,7 @@ You can build an optical scene in a lightweight **pygame GUI**, save it to JSON,
 - Export **beam profiles** (heatmap + 3D surface + CSV grid) for detectors
 - Run a **convergence study** to pick a stable number of rays vs. runtime
 
-## Tech stack
+## Tech stack ##
 - Python 3.10+
 - `pygame` (GUI + visualization)
 - `numpy` (math)
